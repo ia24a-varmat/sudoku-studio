@@ -1,0 +1,9 @@
+{% extends "base.html" %}{% block content %}<div class="heading"><div><p class="eyebrow">{{ puzzle.difficulty|capitalize }} · {{ puzzle.id }}</p><h1>{{ puzzle.title }}</h1></div><a href="{{ url_for('main.library') }}">← Bibliothek</a></div>
+<p>Fülle die leeren Felder mit Zahlen von 1 bis 9. Vorgegebene Zahlen sind fix.</p>
+<div id="sudoku" class="sudoku" data-puzzle-id="{{ puzzle.id }}" data-original='{{ puzzle.board|tojson }}'>
+{% for row in puzzle.board %}{% set row_index = loop.index0 %}{% for cell in row %}
+<input aria-label="Zeile {{ row_index + 1 }}, Spalte {{ loop.index }}" inputmode="numeric" maxlength="1" pattern="[1-9]" data-row="{{ row_index }}" data-col="{{ loop.index0 }}" value="{{ cell if cell else '' }}" {% if cell %}readonly class="fixed"{% endif %}>
+{% endfor %}{% endfor %}</div>
+<div class="actions"><button id="check" type="button">Prüfen</button><button id="reset" type="button" class="secondary">Zurücksetzen</button><button id="submit" type="button">Ergebnis speichern</button></div>
+<p id="feedback" role="status" aria-live="polite"></p><p id="timer">Zeit: 0 Sekunden</p>
+<script src="{{ url_for('static', filename='js/sudoku.js') }}" defer></script>{% endblock %}

@@ -1,0 +1,7 @@
+<!doctype html>
+<html lang="de-CH"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sudoku Studio</title><link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head>
+<body><header><a class="brand" href="{{ url_for('main.index') }}">🧩 Sudoku Studio</a>
+<nav><a href="{{ url_for('main.index') }}">Home</a><a href="{{ url_for('main.library') }}">Bibliothek</a><a href="{{ url_for('stats.statistics') }}">Statistiken</a><a href="{{ url_for('stats.leaderboard') }}">Bestenliste</a></nav></header>
+<main>{% for msg in get_flashed_messages() %}<p class="notice">{{ msg }}</p>{% endfor %}{% block content %}{% endblock %}</main>
+<footer>M323 · Funktionale Programmierung · LB02</footer></body></html>

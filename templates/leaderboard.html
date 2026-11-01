@@ -1,0 +1,2 @@
+{% extends "base.html" %}{% block content %}<h1>Bestenliste</h1><p>Sortierung: mehr Lösungen, weniger Fehler, kürzere Durchschnittszeit.</p>
+<div class="panel table-wrap"><table><thead><tr><th>Platz</th><th>Spieler</th><th>Gelöst</th><th>Fehler</th><th>Ø Zeit</th></tr></thead><tbody>{% for player in players %}<tr><td>{{ loop.index }}</td><td>{{ player.player }}</td><td>{{ player.solved }}</td><td>{{ player.mistakes }}</td><td>{{ player.average_seconds }} s</td></tr>{% else %}<tr><td colspan="5">Noch keine Einträge.</td></tr>{% endfor %}</tbody></table></div>{% endblock %}

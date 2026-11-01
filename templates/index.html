@@ -1,0 +1,5 @@
+{% extends "base.html" %}{% block content %}
+<section class="hero"><p class="eyebrow">M323 · LB02</p><h1>Sudoku Studio</h1><p>Spiele, prüfe und analysiere Sudoku-Rätsel mit Python und Flask.</p>
+<div class="actions"><a class="button" href="{{ url_for('main.library') }}">Rätsel auswählen →</a><a class="button secondary" href="{{ url_for('sudoku.challenge') }}">Tages-Challenge</a></div></section>
+<div class="cards"><article><h3>🧠 Rätsel</h3><p>Wähle zwischen einfach, mittel und schwierig.</p></article><article><h3>📊 Statistiken</h3><p>Analysiere Lösungszeiten und Fehler.</p></article><article><h3>🏆 Bestenliste</h3><p>Vergleiche gespeicherte Ergebnisse.</p></article></div>
+{% endblock %}
