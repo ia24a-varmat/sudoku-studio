@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "player": "Gast",
+    "puzzle_id": "001",
+    "difficulty": "easy",
+    "seconds": 267,
+    "mistakes": 0
+  },
+  {
+    "player": "sakina",
+    "puzzle_id": "003",
+    "difficulty": "medium",
+    "seconds": 361,
+    "mistakes": 0
+  }
+]

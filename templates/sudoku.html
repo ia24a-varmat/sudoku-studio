@@ -1,9 +1,285 @@
-{% extends "base.html" %}{% block content %}<div class="heading"><div><p class="eyebrow">{{ puzzle.difficulty|capitalize }} · {{ puzzle.id }}</p><h1>{{ puzzle.title }}</h1></div><a href="{{ url_for('main.library') }}">← Bibliothek</a></div>
-<p>Fülle die leeren Felder mit Zahlen von 1 bis 9. Vorgegebene Zahlen sind fix.</p>
-<div id="sudoku" class="sudoku" data-puzzle-id="{{ puzzle.id }}" data-original='{{ puzzle.board|tojson }}'>
-{% for row in puzzle.board %}{% set row_index = loop.index0 %}{% for cell in row %}
-<input aria-label="Zeile {{ row_index + 1 }}, Spalte {{ loop.index }}" inputmode="numeric" maxlength="1" pattern="[1-9]" data-row="{{ row_index }}" data-col="{{ loop.index0 }}" value="{{ cell if cell else '' }}" {% if cell %}readonly class="fixed"{% endif %}>
-{% endfor %}{% endfor %}</div>
-<div class="actions"><button id="check" type="button">Prüfen</button><button id="reset" type="button" class="secondary">Zurücksetzen</button><button id="submit" type="button">Ergebnis speichern</button></div>
-<p id="feedback" role="status" aria-live="polite"></p><p id="timer">Zeit: 0 Sekunden</p>
-<script src="{{ url_for('static', filename='js/sudoku.js') }}" defer></script>{% endblock %}
+{% extends "base.html" %}
+
+{% block content %}
+
+<section class="game-topbar">
+    <div>
+        <p class="eyebrow">
+            Sudoku Studio · {{ puzzle.difficulty|capitalize }}
+        </p>
+
+        <h1>{{ puzzle.title }}</h1>
+
+        <p class="game-subtitle">
+            Fülle das Feld mit den Zahlen 1 bis 9. Viel Spass!
+        </p>
+    </div>
+
+    <a class="game-back" href="{{ url_for('main.library') }}">
+        ← Zur Bibliothek
+    </a>
+</section>
+
+
+<div class="game-layout" id="gameArea" inert>
+
+    <!-- SUDOKU SPIELFELD -->
+    <section class="game-card">
+
+        <div class="game-statusbar">
+            <span>
+                👤 <strong id="playerDisplay">–</strong>
+            </span>
+
+            <span>
+                ⏱ <strong id="timer">00:00</strong>
+            </span>
+
+            <span>
+                ⚑ Fehler: <strong id="mistakeCount">0</strong>
+            </span>
+        </div>
+
+
+        <div
+            id="sudoku"
+            class="sudoku game-board"
+            data-puzzle-id="{{ puzzle.id }}"
+            data-original='{{ puzzle.board|tojson }}'
+            role="group"
+            aria-label="Sudoku-Spielfeld"
+        >
+
+            {% for row in puzzle.board %}
+                {% set row_index = loop.index0 %}
+
+                {% for cell in row %}
+
+                    <input
+                        type="text"
+                        inputmode="numeric"
+                        maxlength="1"
+                        autocomplete="off"
+                        aria-label="Zeile {{ row_index + 1 }}, Spalte {{ loop.index }}"
+                        data-row="{{ row_index }}"
+                        data-col="{{ loop.index0 }}"
+                        value="{{ cell if cell else '' }}"
+                        {% if cell %}
+                            readonly
+                            class="fixed"
+                        {% endif %}
+                    >
+
+                {% endfor %}
+            {% endfor %}
+
+        </div>
+
+
+        <!-- RÜCKMELDUNGEN -->
+        <p
+            class="game-feedback"
+            id="feedback"
+            role="status"
+            aria-live="polite"
+        >
+            Wähle ein Feld und gib eine Zahl ein.
+        </p>
+
+
+        <!-- SPIELAKTIONEN -->
+        <div class="game-actions">
+
+            <button type="button" id="check">
+                ✓ Prüfen
+            </button>
+
+            <button
+                type="button"
+                id="continue"
+                class="secondary"
+                hidden
+            >
+                ▶ Weiter spielen
+            </button>
+
+            <button type="button" id="submit">
+                🏆 Ergebnis speichern
+            </button>
+
+            <button
+                type="button"
+                id="reset"
+                class="secondary"
+            >
+                ↻ Neu starten
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- RECHTE SEITE -->
+    <aside class="game-side">
+
+        <!-- ZAHLENAUSWAHL -->
+        <div class="game-panel">
+
+            <p class="eyebrow">Zahlen</p>
+
+            <h2>Welche Zahl fehlt?</h2>
+
+            <p class="game-muted">
+                Wähle eine Zahl. Die kleine Anzeige zeigt,
+                wie viele noch fehlen.
+            </p>
+
+
+            <div class="number-pad" id="numberPad">
+
+                {% for number in range(1, 10) %}
+
+                    <button
+                        type="button"
+                        class="digit-button"
+                        data-digit="{{ number }}"
+                    >
+                        <strong>{{ number }}</strong>
+
+                        <small id="remaining-{{ number }}">
+                            9 übrig
+                        </small>
+                    </button>
+
+                {% endfor %}
+
+            </div>
+
+
+            <button
+                type="button"
+                id="erase"
+                class="game-utility"
+            >
+                ⌫ Zahl löschen
+            </button>
+
+        </div>
+
+
+        <!-- HINWEISE -->
+        <div class="game-panel">
+
+            <p class="eyebrow">Ein bisschen Hilfe</p>
+
+            <h2>Du kommst nicht weiter?</h2>
+
+            <p class="game-muted">
+                Ein Hinweis trägt genau eine korrekte Zahl ein.
+            </p>
+
+            <button
+                type="button"
+                id="hint"
+                class="game-hint"
+            >
+                💡 Hinweis anzeigen
+            </button>
+
+            <p class="game-muted">
+                Verwendete Hinweise:
+                <strong id="hintCount">0</strong>
+            </p>
+
+            <hr class="game-divider">
+
+            <p class="game-muted">
+                Tipp: Mit den <strong>Pfeiltasten</strong>
+                wechselst du das Feld.
+
+                Mit <strong>Backspace</strong>
+                löschst du eine Zahl.
+            </p>
+
+        </div>
+
+    </aside>
+
+</div>
+
+
+<!-- NAME VOR SPIELBEGINN -->
+<div
+    class="game-overlay"
+    id="nameGate"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="nameTitle"
+>
+
+    <form class="name-card" id="nameForm">
+
+        <div class="name-illustration">
+            🧩
+        </div>
+
+        <p class="eyebrow">
+            Willkommen bei Sudoku Studio
+        </p>
+
+        <h2 id="nameTitle">
+            Bereit für eine Runde?
+        </h2>
+
+        <p>
+            Gib zuerst deinen Namen ein.
+            Danach startet dein Timer.
+        </p>
+
+        <label for="playerInput">
+            Dein Spielername
+        </label>
+
+        <input
+            id="playerInput"
+            name="player"
+            maxlength="30"
+            required
+            autocomplete="nickname"
+            placeholder="z. B. Tanu"
+        >
+
+        <p
+            id="nameError"
+            class="name-error"
+            role="alert"
+        ></p>
+
+        <button type="submit">
+            Spiel starten →
+        </button>
+
+        <a href="{{ url_for('main.library') }}">
+            Anderes Sudoku auswählen
+        </a>
+
+    </form>
+
+</div>
+
+
+<!-- ANIMATIONEN -->
+<div
+    id="celebrationLayer"
+    class="celebration-layer"
+    aria-hidden="true"
+></div>
+
+
+<script
+    src="{{ url_for('static', filename='js/sudoku.js') }}"
+    defer
+></script>
+
+{% endblock %}
