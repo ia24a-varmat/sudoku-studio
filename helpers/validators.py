@@ -49,6 +49,6 @@ def check_fixed_cells(original: Board, current: Board) -> bool:
 def update_board(board: Board, row: int, col: int, value: int) -> Board:
     if not (0 <= row < 9 and 0 <= col < 9 and type(value) is int and 0 <= value <= 9):
         raise ValueError("Ungültiger Index oder Wert.")
-    return tuple(tuple(value if (r, c) == (row, column) else cell
+    return tuple(tuple(value if (r, column) == (row, col) else cell
                        for column, cell in enumerate(values))
                  for r, values in enumerate(board))
