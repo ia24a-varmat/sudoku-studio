@@ -31,3 +31,26 @@ def choose_hint_cell(
         return selected
 
     return candidates[0] if candidates else None
+
+def normalise_selected(
+    selected: object
+) -> tuple[int, int] | None:
+    """
+    Prüft eine ausgewählte Sudoku-Position.
+
+    Ungültige Werte werden mit None beantwortet.
+    """
+
+    if not isinstance(selected, list):
+        return None
+
+    if len(selected) != 2:
+        return None
+
+    if not all(
+        type(value) is int and 0 <= value <= 8
+        for value in selected
+    ):
+        return None
+
+    return selected[0], selected[1]

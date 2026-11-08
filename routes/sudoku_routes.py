@@ -29,7 +29,10 @@ from services.sudoku_service import (
 
 from services.challenge_service import recommend_challenge
 from services.response_service import make_check_response
-from services.hint_service import choose_hint_cell
+from services.hint_service import (
+    choose_hint_cell,
+    normalise_selected
+)
 
 # Flask Blueprint
 sudoku_bp = Blueprint("sudoku", __name__)
@@ -318,8 +321,9 @@ def hint(puzzle_id):
         selected_position = tuple(selected)
 
     else:
-        selected_position = None
-
+        selected_position = normalise_selected(
+            payload.get("selected")
+        )
     position = choose_hint_cell(
         puzzle.board,
         board,
