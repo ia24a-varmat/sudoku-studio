@@ -295,9 +295,12 @@ def hint(puzzle_id):
             "error": str(exc)
         }), 400
 
-    # Vorgegebene Zahlen dürfen nicht verändert werden.
-    if not check_fixed_cells(puzzle.board, board):
+    fixed_values_unchanged = check_fixed_cells(
+        puzzle.board,
+        board
+    )
 
+    if not fixed_values_unchanged:
         return jsonify({
             "error": "Eine vorgegebene Zahl wurde verändert."
         }), 400
