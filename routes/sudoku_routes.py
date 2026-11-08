@@ -29,7 +29,7 @@ from services.sudoku_service import (
 
 from services.challenge_service import recommend_challenge
 from services.response_service import make_check_response
-
+from services.hint_service import choose_hint_cell
 
 # Flask Blueprint
 sudoku_bp = Blueprint("sudoku", __name__)
@@ -305,41 +305,34 @@ def hint(puzzle_id):
             "error": "Eine vorgegebene Zahl wurde verändert."
         }), 400
 
-    # Felder suchen, die einen Hinweis benötigen.
-    candidates = [
-        (row, col)
+    selected = payload.get("selected")
 
-        for row in range(9)
-        for col in range(9)
+    if (
+            isinstance(selected, list)
+            and len(selected) == 2
+            and all(
+        type(value) is int and 0 <= value <= 8
+        for value in selected
+    )
+    ):
+        selected_position = tuple(selected)
 
-        if (
-            puzzle.board[row][col] == 0
-            and board[row][col] != puzzle.solution[row][col]
-        )
-    ]
+    else:
+        selected_position = None
 
-    if not candidates:
+    position = choose_hint_cell(
+        puzzle.board,
+        board,
+        puzzle.solution,
+        selected_position
+    )
 
+    if position is None:
         return jsonify({
             "error": "Kein Hinweis mehr verfügbar."
         }), 400
 
-    # Ausgewähltes Feld bevorzugen.
-    selected = payload.get("selected")
-
-    if (
-        isinstance(selected, list)
-        and len(selected) == 2
-        and all(
-            type(value) is int and 0 <= value <= 8
-            for value in selected
-        )
-        and tuple(selected) in candidates
-    ):
-        row, col = selected
-
-    else:
-        row, col = candidates[0]
+    row, col = position
 
     # Nur eine korrekte Zahl zurückgeben.
     return jsonify({
